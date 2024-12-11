@@ -30,6 +30,8 @@ O objetivo deste projeto é provisionar uma instância EC2 que, por meio de um s
 - [Load Balance](#load-balance)
 - [Criando Load Balance](#criando-load-balance)
 - [Conectando a sua instância ao Load Balance](#conectando-a-sua-instancia-ao-load-balance)
+- [Auto Scaling](#auto-scaling)
+- [Criando Auto Scaling](#criando-auto-scaling)
       
 
 ---
@@ -467,6 +469,8 @@ A Bastion Host é uma instância de servidor que atua como um ponto de acesso se
 3. Só clicar na opção **Lauch instance** e sua instancia será criada automaticamente.
  **Observação**: *A inicialização da instancia pode demorar alguns minutos.*
 
+---
+
 ## Load Balance
 O Load Balancer (balanceador de carga) é uma ferramenta que distribui automaticamente o tráfego de rede ou aplicação entre vários servidores.
 
@@ -503,6 +507,35 @@ O Load Balancer (balanceador de carga) é uma ferramenta que distribui automatic
 8. você pode também enviar o seu **DNS name* para algum colega, para vê se eles também conseguem ter acesso. 
 
    **Observação**: *Target instances pode demorar um pouco o registro da sua instância.*
+---
+
+## Auto Scaling
+Auto Scaling é um recurso que ajusta automaticamente a quantidade de recursos computacionais, como instâncias de servidores, com base na demanda.
+
+## Criando Auto Scaling:
+1. Na aba da EC2, dessa seu scroll e vá para **Auto Scaling**.Clique em **Auto Scaling Groups**.
+2. Clique em **Create Auto Scaling group** para iniciarmos a criação dele.
+3. Em **Auto Scaling group name** adicione um nome *exemplo:MyAutoScaling*.
+4. Na aba **Launch template** selecione o template que criamos para sua instância privada.
+5. Clique em **Next**
+6. Na aba **Network**:
+   - Em **VPC** a vpc que criamos.
+   - Em **Availability Zones and subnets** selecione sua subnet publica *exemplo:Newvpc-subnet-public1-us-east-1a*, caso queira pode colocar a subnet das duas zonas
+7. Na opção **Availability Zone distribution - new** deixe selecionado **Balanced best effort**
+8. Clique em **Next**
+9. Na opção **Load balancing** deixe selecionado a opção **Attach to an existing load balancer**
+10. Na aba **Attach to an existing load balancer** selecione a opção **Choose from Classic Load Balancers**
+11. Em **Classic Load Balancers** adicione o Load Balancer que criamos.
+12. Clique em **Next**
+13. Na aba **Group size**, em **Desired capacity** coloque a capacidade para 2.
+14. Na aba **Scaling**:
+    - Em **Min desired capacity** deixe 2
+    - E em **Max desired capacity** deixe 4, você aumentar o diminuir caso queira.
+15. Em **Automatic scaling - optional** deixe seleciona a opção **Target tracking scaling policy**
+16. Altere o **Target value** para 40.
+17. Clique em **Next**
+18. **Next**
+19. clique em **Create Auto Scaling group** para finalizar a criação.
 
 
    
