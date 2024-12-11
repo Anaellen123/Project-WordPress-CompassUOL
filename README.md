@@ -22,7 +22,10 @@ O objetivo deste projeto é provisionar uma instância EC2 que, por meio de um s
 - [Criando um Launch Template](#criando-um-launch-template)
     - [Key pair](#key-pair)
     - [Criando a instância privada](#criando-a-instância-privada)
+    - [Configuração do EFS](#configuração-do-efs)
+    - [Configuração do RDS](#configuração-do-rds)
 - [Bastion Host](#bastion-host)
+- [Criando Template da sua instância Bastion Host](#criando-sua-instância-bastion-host)
 - [Criando sua instância Bastion Host](#criando-sua-instância-bastion-host)
       
 
@@ -388,99 +391,44 @@ Um Launch Template na AWS é uma maneira de definir e armazenar uma configuraç�
 
 9. Na aba **Resource tags**, adicione suas tags caso esteja utilizando o AWS com credenciais específicas.
 10. Na aba **Advanced details**, role a tela até o final e procure por **User data - optional**.
-11. Dentro do **User Data - optional** adicione o seguinte conteúdo:
+11. 11. Dentro do **User Data - optional**, insira o script do `USER_DATA.sh` com as seguintes alterações:
+
+### Configuração do EFS:
+- Acesse o painel do **EFS**, copie o **DNS name** do sistema de arquivos criado e substitua no local indicado no script abaixo:
 
 ```bash
-#!/bin/bash
-
-# Atualiza os pacotes do sistema
-echo "Atualizando pacotes do sistema..."
-apt-get update -y && apt-get upgrade -y
-
-# Instala pacotes necessários
-echo "Instalando pacotes necessários..."
-apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-
-# Adiciona a chave GPG oficial do Docker
-echo "Adicionando a chave GPG oficial do Docker..."
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-chmod a+r /etc/apt/keyrings/docker.asc
-
-# Adiciona o repositório do Docker
-echo "Adicionando o repositório do Docker..."
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# Atualiza novamente os pacotes para incluir o repositório do Docker
-echo "Atualizando lista de pacotes com o repositório do Docker..."
-apt-get update -y
-
-# Instala o Docker e seus componentes
-echo "Instalando Docker CE e plugins..."
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# Inicia e habilita o serviço Docker
-echo "Iniciando e habilitando o serviço Docker..."
-systemctl start docker
-systemctl enable docker
-
-# Adiciona o usuário 'ubuntu' ao grupo docker
-echo "Adicionando o usuário 'ubuntu' ao grupo Docker..."
-usermod -aG docker ubuntu
-
-# Instala o cliente MySQL
-echo "Instalando cliente MySQL..."
-apt-get install -y mysql-client-core-8.0
-
 # Configuração do EFS
 echo "Configurando sistema de arquivos EFS..."
 mkdir -p /mnt/efs
+apt-get update
 apt-get install -y nfs-common
-mount -t nfs4 -o rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport <DNS name do seu EFS>:/ /mnt/efs
+mount -t nfs4 -o rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport <DNS_NAME_DO_EFS>:/ /mnt/efs
+```
 
-# Cria o diretório onde o arquivo docker-compose.yaml será salvo
-echo "Criando diretório para o arquivo docker-compose.yaml..."
-mkdir -p /home/ubuntu/myapp
+- **Substitua `<DNS_NAME_DO_EFS>` pelo DNS do seu EFS**. Exemplo: `fs-abc123.efs.us-east-1.amazonaws.com`.
 
-# Cria o arquivo docker-compose.yaml
-echo "Criando o arquivo docker-compose.yaml..."
-cat > /home/ubuntu/myapp/docker-compose.yaml <<EOL
-version: '3.8'
+### Configuração do RDS:
+- Acesse o painel do **RDS**, copie o **Endpoint** do banco de dados criado e faça as alterações necessárias na parte do script mostrada abaixo:
 
-services:
-  wordpress:
-    image: wordpress:latest
-    restart: always
-    ports:
-      - "80:80"
-    environment:
-      WORDPRESS_DB_HOST: <endpoint do seu RDS>:3306
-      WORDPRESS_DB_NAME: <Nome do banco de dados criado na configuração do RDS>
-      WORDPRESS_DB_USER: <user criado na configuração do RDS>
-      WORDPRESS_DB_PASSWORD: <senha criada na configuração do RDS>
-    volumes:
-      - /mnt/efs/efs_wordpress:/var/www/html
-EOL
+```yaml
+environment:
+    WORDPRESS_DB_HOST: <endpoint_do_RDS>
+    WORDPRESS_DB_NAME: <nome_do_banco_de_dados_criado_no_RDS>
+    WORDPRESS_DB_USER: <user_criado_no_RDS>
+    WORDPRESS_DB_PASSWORD: <senha_criada_no_RDS>
+```
 
-# Altera permissões no diretório do projeto
-chown -R ubuntu:ubuntu /home/ubuntu/myapp
-
-# Inicia o Docker Compose
-echo "Iniciando o Docker Compose..."
-cd /home/ubuntu/myapp
-docker compose up -d
-
-# Mensagem final
-echo "Concluído! O ambiente Docker Compose foi iniciado."
+- **Substitua os valores indicados:**
+  - `<endpoint_do_RDS>` pelo endpoint do seu banco de dados RDS (Exemplo: `database-1.abcdef123456.us-east-1.rds.amazonaws.com`).
+  - `<nome_do_banco_de_dados_criado_no_RDS>` pelo nome do banco de dados configurado (Exemplo: `wordpressdb`).
+  - `<user_criado_no_RDS>` pelo nome do usuário do banco de dados (Exemplo: `admin`).
+  - `<senha_criada_no_RDS>` pela senha do usuário configurada no RDS.
 
 12. Pronto, clique em **Create lauch template** para finalizarmos a criação do seu template
 
 
 ## Criando a instância privada:
-1. Ainda na aba **Launch Templates** selecione seu template já criado.
+1. Ainda na aba **Launch Templates** selecione seu template privado já criado.
 2. Vá em **Actions** e clica na opção **Launch instance from template**
 3. Só clicar na opção **Lauch instance** e sua instancia será criada automaticamente.
  **Observação**: *A inicialização da instancia pode demorar alguns minutos.*
@@ -488,7 +436,33 @@ echo "Concluído! O ambiente Docker Compose foi iniciado."
 ##Bastion Host
 A Bastion Host é uma instância de servidor que atua como um ponto de acesso seguro para acessar outros recursos em uma rede privada. Geralmente, ela é configurada em uma sub-rede pública e serve como intermediária para conexões SSH ou RDP, permitindo o acesso a servidores em sub-redes privadas. Sua principal função é fornecer uma camada extra de segurança, pois as instâncias privadas não são acessíveis diretamente da internet, sendo acessadas apenas através da Bastion Host.
 
-## Criando sua instância Bastion Host
+## Criando Template da sua instância Bastion Host:
+1. Na aba **EC2**, vá nas opções de **Instances** e clique em **Launch Templates**.
+2. Clique na opção **Create launch template**.
+3. Em **Launch template name and description**, preencha:
+   - Em **Launch template name - required**, dê um nome ao seu template (exemplo: `MyTemplateBastioHost`).
+   - Em **Template version description**, coloque a versão do seu template (exemplo: `version-1`).
+4. Em **Template version description**, clique em **Quick Start** e selecione a opção **Ubuntu**.
+   
+   **Observação**: *Para seguir esses passos, você terá que ter acesso a um terminal **Ubuntu**.*
+   
+5. Em **Instance type**, selecione a opção **t2.micro**.
+6. Em **Key pair (login)**, clique no link *create new key pair*.
+7. Em **Key pair name**, selecione a chave que você criou.
+8. Em **Network settings**:
+   - Em **Subnet**, selecione a subnet publica da VPC que criamos (exemplo: `Newvpc-subnet-Public1-us-east-1a`).
+   - Em **Firewall (security groups)**, deixe selecionada a opção **Select existing security group**.
+   - Em **Common security groups**, selecione o grupo de segurança que criamos para sua instância Bastion Host.
+   - Em **Advanced network configuration**, procure pela opção **Auto-assign public IP** e defina como **Enable**.
+
+9. Na aba **Resource tags**, adicione suas tags caso esteja utilizando o AWS com credenciais específicas.
+10. Pronto, clique em **Create lauch template** para finalizarmos a criação do seu template Bastio Host
+
+## Criando sua instância Bastion Host :
+1. Ainda na aba **Launch Templates** selecione seu template Bastion Host já criado.
+2. Vá em **Actions** e clica na opção **Launch instance from template**
+3. Só clicar na opção **Lauch instance** e sua instancia será criada automaticamente.
+ **Observação**: *A inicialização da instancia pode demorar alguns minutos.*
 
 
  
