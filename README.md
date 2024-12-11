@@ -433,7 +433,7 @@ environment:
 3. Só clicar na opção **Lauch instance** e sua instancia será criada automaticamente.
  **Observação**: *A inicialização da instancia pode demorar alguns minutos.*
 
-##Bastion Host
+## Bastion Host
 A Bastion Host é uma instância de servidor que atua como um ponto de acesso seguro para acessar outros recursos em uma rede privada. Geralmente, ela é configurada em uma sub-rede pública e serve como intermediária para conexões SSH ou RDP, permitindo o acesso a servidores em sub-redes privadas. Sua principal função é fornecer uma camada extra de segurança, pois as instâncias privadas não são acessíveis diretamente da internet, sendo acessadas apenas através da Bastion Host.
 
 ## Criando Template da sua instância Bastion Host:
