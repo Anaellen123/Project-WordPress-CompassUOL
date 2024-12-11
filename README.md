@@ -27,6 +27,9 @@ O objetivo deste projeto é provisionar uma instância EC2 que, por meio de um s
 - [Bastion Host](#bastion-host)
 - [Criando Template da sua instância Bastion Host](#criando-sua-instância-bastion-host)
 - [Criando sua instância Bastion Host](#criando-sua-instância-bastion-host)
+- [Load Balance](#load-balance)
+- [Criando Load Balance](#criando-load-balance)
+- [Conectando a sua instância ao Load Balance](#conectando-a-sua-instancia-ao-load-balance)
       
 
 ---
@@ -464,6 +467,45 @@ A Bastion Host é uma instância de servidor que atua como um ponto de acesso se
 3. Só clicar na opção **Lauch instance** e sua instancia será criada automaticamente.
  **Observação**: *A inicialização da instancia pode demorar alguns minutos.*
 
+## Load Balance
+O Load Balancer (balanceador de carga) é uma ferramenta que distribui automaticamente o tráfego de rede ou aplicação entre vários servidores.
+
+## Criando Load Balance:
+1. Na aba da EC2, dessa o scroll até opção **Load Balancing** clique em **Load Balancers**.
+2. Clique a criação **Create load balancer** para iniciarmos a criação.
+3. Dessa o scroll e vá na opção **Classic Load Balancer - previous generation**
+4. clique m **Create**
+5. Na aba **Basic configuration**:
+   - Em **Load balancer name** de um nome ao seu load balancer. *exemplo:MyLoadBalancer*
+   - Em **Scheme** deixe na opção **Internet-facing**
+6. Na aba **Network mapping**:
+   - Em **VPC** coloque a vpc que criamos
+   - Em **Availability Zones** selecione as zonas da sua vpc *exemplo:us-east-1a,us-east-1b*
+   - Ao selecionar ela aparecerá suas **subnet** deixe na opção publica ambas as zonas
+7. Na aba **Security groups** selecione o security group que criamos para o load balancer
+8. Em **Listeners and routing** deixe as opções em **Listener** deixe na opção **HTTP:80**
+9. Na opção **Health checks**:
+    - Em **ping protocol** deixe: HTTP
+    - Em **ping port** deixe: 80
+    - Em **ping path** deixe: /wp-admin/install.php
+
+10. clique em **Create load balancer** para finalizar.
+
+
+## Conectando a sua instância ao Load Balance:
+1. Acesse seu Load Balancer criado.
+2. Na opção **Target instances**clique em **Manage instances**.
+3. Na aba **Available instances** selecione sua instância privada.
+4. Na aba **Review selected instances** selecione sua instância privada também.
+5. Clique em **Save changes** para salvar as alterações.
+6.Para saber se está funcionado o seu **Health status** estará como *In-service*.
+7. Para testar também copie o **DNS name** do seu load balancer e coloque em seu navegador, veja se está exibindo o deploy do WordPress corretamente.
+8. você pode também enviar o seu **DNS name* para algum colega, para vê se eles também conseguem ter acesso. 
+
+   **Observação**: *Target instances pode demorar um pouco o registro da sua instância.*
+
+
+   
 
  
    
