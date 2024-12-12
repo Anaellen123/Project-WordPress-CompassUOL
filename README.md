@@ -27,11 +27,12 @@ O objetivo deste projeto é provisionar uma instância EC2 que, por meio de um s
 - [Bastion Host](#bastion-host)
 - [Criando Template da sua instância Bastion Host](#criando-sua-instância-bastion-host)
 - [Criando sua instância Bastion Host](#criando-sua-instância-bastion-host)
-- [Load Balance](#load-balance)
-- [Criando Load Balance](#criando-load-balance)
-- [Conectando a sua instância ao Load Balance](#conectando-a-sua-instancia-ao-load-balance)
+- [Load Balancer](#load-balancer)
+- [Criando Load Balancer](#criando-load-balancer)
+- [Conectando a sua instância ao Load Balancer](#conectando-a-sua-instancia-ao-load-balancer)
 - [Auto Scaling](#auto-scaling)
 - [Criando Auto Scaling](#criando-auto-scaling)
+- [Acessando a instância privada](#acessando-a-instância-privada)
       
 
 ---
@@ -471,10 +472,10 @@ A Bastion Host é uma instância de servidor que atua como um ponto de acesso se
 
 ---
 
-## Load Balance
+## Load Balancer
 O Load Balancer (balanceador de carga) é uma ferramenta que distribui automaticamente o tráfego de rede ou aplicação entre vários servidores.
 
-## Criando Load Balance:
+## Criando Load Balancer:
 1. Na aba da EC2, dessa o scroll até opção **Load Balancing** clique em **Load Balancers**.
 2. Clique a criação **Create load balancer** para iniciarmos a criação.
 3. Dessa o scroll e vá na opção **Classic Load Balancer - previous generation**
@@ -538,7 +539,36 @@ Auto Scaling é um recurso que ajusta automaticamente a quantidade de recursos c
 19. clique em **Create Auto Scaling group** para finalizar a criação.
 
 
-   
+---
+
+## Acessando a instância privada
+Após a criação do serviço não é necessário acessar suas instância, pois ao seguir esse passo ela deve estar funcional. Mas criamos o Bastion Host para caso haja necessidade de acessar sua instância
+mostrarei o passo a passo de como realizar esse procedimento.
+
+**Obeservação:** *quando criamos a sua chave **Key pair** um documento foi baixado em sua máquina, esse documento é o pacote de acesso(Sua chave)*
+
+**Procurando a chave:**
+``` cd  /mnt/caminho/para/exemplo: chave1.pem ```
+
+**Movendo sua chave para seu home ubuntu**
+``` mv chave1.pem / ```
+
+**Dando permissão de leitura**
+``` chmod 400 chave1.pem ```
+**Movendo chave de acesso do seu bastion host para ele poder acessar sua instância privada:**
+```scp -i chave1.pem chave1.pem ubuntu@<ip bastion host>:/home/ubuntu/ ```
+
+**Entrando no seu diretório Bastion Host**
+ ``` ssh -i chave29.pem ubuntu@<ip bastion host> ```
+**Verifique se a chave está no dirétorio do se bastio host:**
+``` ls ```
+**Acesse sua instancia privada**
+ ``` ssh -i chave29.pem ubuntu@<ip instancia privada> ```
+
+
+
+
+
 
  
    
