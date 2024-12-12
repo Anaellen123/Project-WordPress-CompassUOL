@@ -33,6 +33,7 @@ O objetivo deste projeto é provisionar uma instância EC2 que, por meio de um s
 - [Auto Scaling](#auto-scaling)
 - [Criando Auto Scaling](#criando-auto-scaling)
 - [Acessando a instância privada](#acessando-a-instância-privada)
+- [Estresse do computador para força a criação de máquina no Auto Scaling](#estresse-do-computador-para-força-a-criação-de máquina-no-auto-scaling)
       
 
 ---
@@ -566,6 +567,22 @@ mostrarei o passo a passo de como realizar esse procedimento.
  ``` ssh -i chave29.pem ubuntu@<ip instancia privada> ```
 
 
+## Estresse do computador para força a criação de máquina no Auto Scaling
+
+#### Para estressar sua máquina utilizando a ferramenta **stress**:
+
+1- Acesse sua máquina Privada,[Veja o passo a passo de Acessando a instância privada](#acessando-a-instancia-privada)
+2- Atualize seu terminal utilizando:
+``` sudo apt update ```
+``` sudo apt upgrade ```
+3- baixe a ferramenta **stress**:
+``` sudo apt install stress ```
+4- Digete o seguinte comando para para começar a estressar a máquina:
+``` stress --cpu 40 ``` 
+5- Em seu Auto Scaling acesse a aba **Monitoring** e coloque na opção **EC2**
+6- Observe o **CPU Utilization** ele mostrará os pontos críticos em graficos de sua máquina.
+7- Observe também aba **Instance Managemente** para observa a criação de máquinas
+8- também pode utilizar a aba **Activity** você observara as mensagens de lançamento de sua instância
 
 
 
